@@ -2,30 +2,39 @@ import { ProcessorMapping, ContextData } from "./Context";
 
 export type RenderFunction = () => Promise<any>
 
-export interface Page {
-    file: string
+export interface DynamicRoute {
+    path: string
     render: RenderFunction
 }
 
-export type PageMapping = { [file: string]: RenderFunction }
+export type DynamicRouteMapping = { [file: string]: RenderFunction }
 
 export interface Descriptor {
-    prefix?: string
-    srcDir: string
-    staticsDir: string
-    pagesDir: string
-    processors: ProcessorMapping
-    data: ContextData
-    dynamics: PageMapping | Page[]
+    mountPoint?: string
+    sourceDir?: string
+    staticsSubDir?: string
+    pagesSubDir?: string
+    processors?: ProcessorMapping
+    contextData?: ContextData
+    dynamicRoutes?: DynamicRouteMapping | DynamicRoute[]
 }
 
-export function getPagesAsArray(pages: PageMapping | Page[]) {
-    return Array.isArray(pages) ? pages : convertPageMappingToArray(pages)
+export function withDescriptorDefaults(descriptor: Descriptor) {
+    return {
+        processors: {},
+        contextData: {},
+        dynamicRoutes: {},
+        ...descriptor
+    }
 }
 
-function convertPageMappingToArray(pageMapping: PageMapping): Page[] {
-    return Object.keys(pageMapping).map(file => ({
-        file,
-        render: pageMapping[file]
+export function getDynamicRoutesAsArray(dynamicRoutes: DynamicRouteMapping | DynamicRoute[]) {
+    return Array.isArray(dynamicRoutes) ? dynamicRoutes : convertDynamicRouteMappingToArray(dynamicRoutes)
+}
+
+function convertDynamicRouteMappingToArray(dynamicRouteMapping: DynamicRouteMapping): DynamicRoute[] {
+    return Object.keys(dynamicRouteMapping).map(path => ({
+        path,
+        render: dynamicRouteMapping[path]
     }))
 }

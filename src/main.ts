@@ -4,7 +4,7 @@ import { createConnectApp } from "./serve"
 
 export async function main(args: {
     debug: boolean,
-    destDir: string,
+    destinationDir: string,
     port: number,
     getDescriptors: () => Promise<Descriptor[]>
 }) {
@@ -14,7 +14,7 @@ export async function main(args: {
         case 'build': {
             return build({
                 debug: args.debug,
-                destDir: args.destDir,
+                destinationDir: args.destinationDir,
                 instructions: createBuildInstructions(descriptors)
             })
         }

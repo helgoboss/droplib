@@ -6,7 +6,7 @@ import serveStatic from 'serve-static'
 import finalhandler from 'finalhandler'
 import url from 'url'
 import mime from 'mime'
-import { Descriptor, getPagesAsArray } from './Descriptor'
+import { Descriptor, getDynamicRoutesAsArray, withDescriptorDefaults } from './Descriptor'
 import { Context } from './Context'
 import { findFileWithArbitraryExtension } from './util'
 import connect, { Server, NextHandleFunction, ErrorHandleFunction } from 'connect'
@@ -15,12 +15,14 @@ const defaultFileExtensions = ['html', 'htm']
 const indexFiles = defaultFileExtensions.map(ext => `index.${ext}`)
 
 
-export function createPagesMiddleware(descriptor: Descriptor): NextHandleFunction {
-    const srcDirAbsolute = path.resolve(process.cwd(), descriptor.srcDir)
+export function createPagesMiddleware(
+    descriptor: Required<Pick<Descriptor, 'sourceDir' | 'processors' | 'contextData' | 'pagesSubDir'>>
+): NextHandleFunction {
+    const srcDirAbsolute = path.resolve(process.cwd(), descriptor.sourceDir)
     const context = Context.create({
         processors: descriptor.processors,
         initialDir: srcDirAbsolute,
-        data: descriptor.data,
+        data: descriptor.contextData,
     })
     return async (request, response, next) => {
         if (!isReadOnly(request)) {
@@ -28,7 +30,7 @@ export function createPagesMiddleware(descriptor: Descriptor): NextHandleFunctio
             return
         }
         const requestedFile = resolveRequestedFileFromUrl(request.url!)
-        const pageFileRelativeToSrcDir = path.join(descriptor.pagesDir, requestedFile)
+        const pageFileRelativeToSrcDir = path.join(descriptor.pagesSubDir, requestedFile)
         const realPageFileRelativeToSrcDir = await findRealPageFile({ srcDirAbsolute, pageFileRelativeToSrcDir })
         if (!realPageFileRelativeToSrcDir) {
             next()
@@ -93,15 +95,17 @@ function expandUrlPath(urlPath: string) {
 
 
 
-export function createDynamicsMiddleware(descriptor: Descriptor): NextHandleFunction {
+export function createDynamicRoutesMiddleware(
+    descriptor: Required<Pick<Descriptor, 'dynamicRoutes'>>
+): NextHandleFunction {
     return async (request, response, next) => {
         if (!isReadOnly(request)) {
             next()
             return
         }
         const requestedFile = resolveRequestedFileFromUrl(request.url!)
-        const pageArray = getPagesAsArray(descriptor.dynamics)
-        const route = pageArray.find(route => route.file === requestedFile)
+        const pageArray = getDynamicRoutesAsArray(descriptor.dynamicRoutes)
+        const route = pageArray.find(route => route.path === requestedFile)
         if (!route) {
             next()
             return
@@ -114,9 +118,11 @@ export function createDynamicsMiddleware(descriptor: Descriptor): NextHandleFunc
     }
 }
 
-export function createStaticsMiddleware(descriptor: Descriptor): NextHandleFunction {
+export function createStaticsMiddleware(
+    descriptor: Required<Pick<Descriptor, 'sourceDir' | 'staticsSubDir'>>
+): NextHandleFunction {
     return serveStatic(
-        path.join(descriptor.srcDir, descriptor.staticsDir),
+        path.join(descriptor.sourceDir, descriptor.staticsSubDir),
         { extensions: defaultFileExtensions, index: indexFiles }
     ) as NextHandleFunction
 }
@@ -130,11 +136,18 @@ export function createFinalMiddleware(): ErrorHandleFunction {
 export function createConnectApp(descriptors: Descriptor[]): Server {
     const app = connect()
     descriptors.forEach(descriptor => {
-        const route = descriptor.prefix ? `/${descriptor.prefix}` : '/'
-        app.use(route, createDynamicsMiddleware(descriptor))
-        app.use(route, createStaticsMiddleware(descriptor))
-        app.use(route, createPagesMiddleware(descriptor)),
-            app.use(route, createFinalMiddleware())
+        const { mountPoint, pagesSubDir, dynamicRoutes, processors, contextData, staticsSubDir, sourceDir } = withDescriptorDefaults(descriptor)
+        const route = mountPoint ? `/${mountPoint}` : '/'
+        if (dynamicRoutes) {
+            app.use(route, createDynamicRoutesMiddleware({ dynamicRoutes }))
+        }
+        if (sourceDir && staticsSubDir) {
+            app.use(route, createStaticsMiddleware({ sourceDir, staticsSubDir, }))
+        }
+        if (sourceDir && pagesSubDir) {
+            app.use(route, createPagesMiddleware({ sourceDir, contextData, processors, pagesSubDir }))
+        }
+        app.use(route, createFinalMiddleware())
     })
     return app
 }
