@@ -115,16 +115,20 @@ function stripLastExtensionIfThereAreMultiple(fileName: string) {
     }
     return components.slice(0, components.length - 1).join('.')
 }
-export function createBuildInstructions(descriptor: Descriptor) {
+export function createBuildInstructions(descriptors: Descriptor[]) {
     return async (args: { destDir: string }) => {
-        await copyDir(path.join(descriptor.srcDir, descriptor.staticsDir), args.destDir)
-        await processPages({
-            srcDir: descriptor.srcDir,
-            destDir: args.destDir,
-            pagesDirWithinSrcDir: descriptor.pagesDir,
-            processors: descriptor.processors,
-            data: descriptor.data
+        const promises = descriptors.map(async descriptor => {
+            const realDestDir = descriptor.prefix ? path.join(args.destDir, descriptor.prefix) : args.destDir
+            await copyDir(path.join(descriptor.srcDir, descriptor.staticsDir), realDestDir)
+            await processPages({
+                srcDir: descriptor.srcDir,
+                destDir: realDestDir,
+                pagesDirWithinSrcDir: descriptor.pagesDir,
+                processors: descriptor.processors,
+                data: descriptor.data
+            })
+            await renderAndSavePages(descriptor.dynamics, realDestDir)
         })
-        await renderAndSavePages(descriptor.dynamics, args.destDir)
+        await Promise.all(promises)
     }
 }

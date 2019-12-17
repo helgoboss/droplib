@@ -10,6 +10,7 @@ export interface Page {
 export type PageMapping = { [file: string]: RenderFunction }
 
 export interface Descriptor {
+    prefix?: string
     srcDir: string
     staticsDir: string
     pagesDir: string

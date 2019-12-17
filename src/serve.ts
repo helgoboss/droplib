@@ -1,7 +1,7 @@
 import process from 'process'
 import path from 'path'
 import fs from 'fs-extra'
-import http, { IncomingMessage, ServerResponse } from 'http'
+import { IncomingMessage } from 'http'
 import serveStatic from 'serve-static'
 import finalhandler from 'finalhandler'
 import url from 'url'
@@ -9,14 +9,13 @@ import mime from 'mime'
 import { Descriptor, getPagesAsArray } from './Descriptor'
 import { Context } from './Context'
 import { findFileWithArbitraryExtension } from './util'
+import connect, { Server, NextHandleFunction, ErrorHandleFunction } from 'connect'
 
 const defaultFileExtensions = ['html', 'htm']
 const indexFiles = defaultFileExtensions.map(ext => `index.${ext}`)
 
-type Middleware = (request: IncomingMessage, response: ServerResponse, next: (err?: any) => void) => void
 
-
-function createPagesMiddleware(descriptor: Descriptor): Middleware {
+export function createPagesMiddleware(descriptor: Descriptor): NextHandleFunction {
     const srcDirAbsolute = path.resolve(process.cwd(), descriptor.srcDir)
     const context = Context.create({
         processors: descriptor.processors,
@@ -24,6 +23,10 @@ function createPagesMiddleware(descriptor: Descriptor): Middleware {
         data: descriptor.data,
     })
     return async (request, response, next) => {
+        if (!isReadOnly(request)) {
+            next()
+            return
+        }
         const requestedFile = resolveRequestedFileFromUrl(request.url!)
         const pageFileRelativeToSrcDir = path.join(descriptor.pagesDir, requestedFile)
         const realPageFileRelativeToSrcDir = await findRealPageFile({ srcDirAbsolute, pageFileRelativeToSrcDir })
@@ -37,6 +40,10 @@ function createPagesMiddleware(descriptor: Descriptor): Middleware {
         })
         response.end(result)
     }
+}
+
+function isReadOnly(request: IncomingMessage) {
+    return ['HEAD', 'GET'].includes(request.method!)
 }
 
 function getContentType(file: string) {
@@ -86,8 +93,12 @@ function expandUrlPath(urlPath: string) {
 
 
 
-function createDynamicsMiddleware(descriptor: Descriptor): Middleware {
+export function createDynamicsMiddleware(descriptor: Descriptor): NextHandleFunction {
     return async (request, response, next) => {
+        if (!isReadOnly(request)) {
+            next()
+            return
+        }
         const requestedFile = resolveRequestedFileFromUrl(request.url!)
         const pageArray = getPagesAsArray(descriptor.dynamics)
         const route = pageArray.find(route => route.file === requestedFile)
@@ -103,29 +114,27 @@ function createDynamicsMiddleware(descriptor: Descriptor): Middleware {
     }
 }
 
-export function createRequestMiddleware(descriptor: Descriptor): Middleware {
-    const staticsMiddleware = serveStatic(
+export function createStaticsMiddleware(descriptor: Descriptor): NextHandleFunction {
+    return serveStatic(
         path.join(descriptor.srcDir, descriptor.staticsDir),
         { extensions: defaultFileExtensions, index: indexFiles }
-    ) as Middleware
-    const dynamicsMiddleware = createDynamicsMiddleware(descriptor)
-    const pagesMiddleware = createPagesMiddleware(descriptor)
-    return (request, response, next) => {
-        if (!['HEAD', 'GET'].includes(request.method!)) {
-            next()
-        }
-        staticsMiddleware(request, response, () => {
-            dynamicsMiddleware(request, response, () => {
-                pagesMiddleware(request, response, next)
-            })
-        })
+    ) as NextHandleFunction
+}
+
+export function createFinalMiddleware(): ErrorHandleFunction {
+    return (error, request, response, _) => {
+        return finalhandler(request, response)(error)
     }
 }
 
-export function serve(args: { port: number, middleware: Middleware }) {
-    const server = http.createServer((request, response) => {
-        const done = finalhandler(request, response)
-        args.middleware(request, response, done)
+export function createConnectApp(descriptors: Descriptor[]): Server {
+    const app = connect()
+    descriptors.forEach(descriptor => {
+        const route = descriptor.prefix ? `/${descriptor.prefix}` : '/'
+        app.use(route, createDynamicsMiddleware(descriptor))
+        app.use(route, createStaticsMiddleware(descriptor))
+        app.use(route, createPagesMiddleware(descriptor)),
+            app.use(route, createFinalMiddleware())
     })
-    server.listen(args.port)
+    return app
 }
