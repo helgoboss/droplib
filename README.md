@@ -9,7 +9,7 @@ Simple Node.js library for building static websites. Built for own purposes, not
 Evaluates to a string.
 
 Symbols available in template:
-- `context`: `DropContext`
+- `context`: `Context`
 - Any other symbol provided when constructing the processor
 
 ### `template-function`
@@ -17,12 +17,15 @@ Symbols available in template:
 Evaluates to a function that renders a template with the given arguments.
 
 Symbols available in template:
-- `context`: `DropContext`
+- `context`: `Context`
 - `args`: Object containing all the arguments which have been passed to the function template
 - Any other symbol provided when constructing the processor
 
+### ...
+
 ## Todos
 
+- Write documentation
 - Glob support
 - Expose processors in a better way
 - Give default IDs to processors
