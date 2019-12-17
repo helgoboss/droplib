@@ -2,8 +2,17 @@ import path from 'path'
 import fs from 'fs-extra'
 import matter from 'gray-matter'
 import { assert, findFileWithArbitraryExtension } from './util'
-import { Processor } from './Processor'
 
+interface ProcessorInput {
+    context: Context
+    srcFile: string,
+    frontMatter: string,
+    frontMatterData: { [key: string]: any }
+    args: { [key: string]: any }
+    content: any
+}
+
+export type Processor = (input: ProcessorInput) => Promise<any>
 export type ProcessorMapping = { [id: string]: Processor }
 export type ContextData = { [key: string]: any }
 

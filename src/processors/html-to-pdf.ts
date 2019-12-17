@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer'
 import tmp from 'tmp-promise'
-import { Processor } from '../Processor'
+import { Processor } from '..'
 import path from 'path'
 import fs from 'fs-extra'
 

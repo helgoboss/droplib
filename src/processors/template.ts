@@ -1,5 +1,5 @@
 import ejs from 'ejs'
-import { Processor } from '../Processor'
+import { Processor } from '..'
 import fs from 'fs-extra'
 
 type Symbols = { [key: string]: any }

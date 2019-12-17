@@ -2,7 +2,7 @@
 import remark from 'remark'
 // @ts-ignore
 import remarkHtml from 'remark-html'
-import { Processor } from '../Processor'
+import { Processor } from '..'
 
 const customRemark = remark().use(remarkHtml)
 
