@@ -24,7 +24,7 @@ Symbols available in template:
 ## Todos
 
 - Glob support
-- Implement droplib in TypeScript
-- Put processors into separate files
+- Expose processors in a better way
 - Give default IDs to processors
 - Get all standard processors
+- Factor out heavy processors into separate modules (e.g. html-to-pdf)
