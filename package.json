@@ -1,0 +1,58 @@
+{
+  "name": "@helgoboss/droplib",
+  "version": "1.0.0",
+  "description": "Simple Node.js library for building static websites",
+  "types": "lib/index.d.ts",
+  "main": "lib/index.js",
+  "files": [
+    "lib/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/helgoboss/droplib.git"
+  },
+  "keywords": [],
+  "author": "helgoboss",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/helgoboss/droplib/issues"
+  },
+  "homepage": "https://github.com/helgoboss/droplib#readme",
+  "devDependencies": {
+    "@types/finalhandler": "^1.1.0",
+    "@types/fs-extra": "^8.0.1",
+    "@types/jest": "^24.0.23",
+    "@types/klaw": "^3.0.0",
+    "@types/mime": "^2.0.1",
+    "@types/node": "^12.12.18",
+    "@types/serve-static": "^1.13.3",
+    "jest": "^24.9.0",
+    "ts-jest": "^24.2.0",
+    "typescript": "^3.7.3"
+  },
+  "dependencies": {
+    "@types/ejs": "^3.0.0",
+    "@types/js-yaml": "^3.12.1",
+    "@types/puppeteer": "^2.0.0",
+    "@types/tmp": "^0.1.0",
+    "ejs": "^3.0.1",
+    "finalhandler": "^1.1.2",
+    "fs-extra": "^8.1.0",
+    "gray-matter": "^4.0.2",
+    "js-yaml": "^3.13.1",
+    "klaw": "^3.0.0",
+    "mime": "^2.4.4",
+    "puppeteer": "^2.0.0",
+    "remark": "^11.0.2",
+    "remark-html": "^10.0.0",
+    "serve-static": "^1.14.1",
+    "tmp-promise": "^2.0.2"
+  }
+}
