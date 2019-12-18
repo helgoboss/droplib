@@ -3,6 +3,7 @@ import tmp from 'tmp-promise'
 import { Processor } from '..'
 import path from 'path'
 import fs from 'fs-extra'
+import url from 'url'
 
 export function createHtmlToPdfProcessor(): Processor {
     return async ({ context, content, args }) => {
@@ -23,7 +24,8 @@ export function createHtmlToPdfProcessor(): Processor {
                 }
                 const browser = await puppeteer.launch({ headless: true })
                 const page = await browser.newPage()
-                await page.goto(indexFile, { waitUntil: 'networkidle0' })
+                const indexFileUrl = url.pathToFileURL(indexFile)
+                await page.goto(url.format(indexFileUrl), { waitUntil: 'networkidle0' })
                 const margin = 40
                 const pdf = await page.pdf({
                     scale: 1.0,
