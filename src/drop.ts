@@ -2,7 +2,7 @@ import { Descriptor } from "./Descriptor"
 import { build, createBuildInstructions } from "./build"
 import { createConnectApp } from "./serve"
 
-export async function main(args: {
+export async function drop(args: {
     debug: boolean,
     destinationDir: string,
     port: number,
