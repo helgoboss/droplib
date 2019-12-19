@@ -26,7 +26,7 @@ Symbols available in template:
 ## Todos
 
 - Write documentation
-- Error messages, e.g. if descriptor is invalid
+- Error messages, e.g. if descriptor is invalid (always automatically including processed file)
 - Glob support
 - Expose processors in a better way
 - Give default IDs to processors
