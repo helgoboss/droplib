@@ -55,11 +55,12 @@ async function cleanDir(dir: string) {
     await fs.remove(dir)
 }
 
-export async function copyDir(src: string, dest: string) {
-    const srcAbsolute = path.resolve(process.cwd(), src)
-    const destAbsolute = path.resolve(process.cwd(), dest)
-    console.log(`Copying ${fmt(srcAbsolute)} to ${fmt(destAbsolute)}...`)
-    await fs.copy(srcAbsolute, destAbsolute, { errorOnExist: false, overwrite: true })
+export async function copyDir(srcDir: string, destDir: string) {
+    const srcDirAbsolute = path.resolve(process.cwd(), srcDir)
+    const destDirAbsolute = path.resolve(process.cwd(), destDir)
+    console.log(`Copying ${fmt(srcDirAbsolute)} to ${fmt(destDirAbsolute)}...`)
+    await fs.ensureDir(destDirAbsolute)
+    await fs.copy(srcDirAbsolute, destDirAbsolute, { errorOnExist: false, overwrite: true })
 }
 
 function fmt(file: string) {
