@@ -28,5 +28,3 @@ Symbols available in template:
 - Write documentation
 - Error messages, e.g. if descriptor is invalid (always automatically including processed file)
 - Glob support
-- Expose processors in a better way
-- Factor out heavy processors into separate modules (e.g. html-to-pdf)
