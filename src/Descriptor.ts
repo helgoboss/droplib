@@ -1,4 +1,4 @@
-import { ProcessorMapping, ContextData } from "./Context";
+import { ContextData, Processor } from "./Context";
 
 export type RenderFunction = () => Promise<any>
 
@@ -14,14 +14,14 @@ export interface Descriptor {
     sourceDir?: string
     staticsSubDir?: string
     pagesSubDir?: string
-    processors?: ProcessorMapping
+    processors?: Processor[]
     contextData?: ContextData
     dynamicRoutes?: DynamicRouteMapping | DynamicRoute[]
 }
 
 export function withDescriptorDefaults(descriptor: Descriptor) {
     return {
-        processors: {},
+        processors: [],
         contextData: {},
         dynamicRoutes: {},
         ...descriptor

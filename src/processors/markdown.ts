@@ -6,9 +6,12 @@ import { Processor } from '..'
 
 const customRemark = remark().use(remarkHtml)
 
-export function createMarkdownProcessor(): Processor {
-    return async ({ content }) => {
-        const file = await customRemark.process(content)
-        return String(file)
+export function markdown(options?: { id: string }): Processor {
+    return {
+        id: options?.id || 'markdown',
+        process: async ({ content }) => {
+            const file = await customRemark.process(content)
+            return String(file)
+        }
     }
 }

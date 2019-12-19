@@ -2,7 +2,7 @@ import path from 'path'
 import process from 'process'
 import fs from 'fs-extra'
 import klaw from 'klaw'
-import { ProcessorMapping, ContextData, Context } from './Context'
+import { ContextData, Context, Processor } from './Context'
 import { Descriptor, DynamicRoute, DynamicRouteMapping, getDynamicRoutesAsArray, withDescriptorDefaults } from './Descriptor'
 
 type BuildInstructions = (args: { destinationDir: string }) => Promise<void>
@@ -72,7 +72,7 @@ export async function buildPages(args: {
     sourceDir: string,
     pagesSubDir: string,
     destinationDir: string,
-    processors: ProcessorMapping,
+    processors: Processor[],
     contextData: ContextData
 }) {
     const srcDirAbsolute = path.resolve(process.cwd(), args.sourceDir)

@@ -1,14 +1,11 @@
-import yaml from 'js-yaml'
-import fs from 'fs-extra'
+import jsYaml from 'js-yaml'
 import { Processor } from '..'
 
-export async function readYaml(file: string) {
-    const dataYaml = await fs.readFile(file, 'utf-8')
-    return yaml.safeLoad(dataYaml)
-}
-
-export function createYamlProcessor(): Processor {
-    return ({ content }) => {
-        return yaml.safeLoad(content)
+export function yaml(options?: { id: string }): Processor {
+    return {
+        id: options?.id || 'yaml',
+        process: ({ content }) => {
+            return jsYaml.safeLoad(content)
+        }
     }
 }

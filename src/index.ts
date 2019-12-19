@@ -1,5 +1,5 @@
 export { build, copyDir, buildPages, buildDynamicRoutes } from './build'
-export { Context, ContextData, ProcessorMapping, Processor } from './Context'
+export { Context, ContextData, Processor } from './Context'
 export { Descriptor, DynamicRoute, RenderFunction, DynamicRouteMapping } from './Descriptor'
 export * from './main'
 export * from './serve'

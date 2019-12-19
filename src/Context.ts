@@ -12,8 +12,11 @@ interface ProcessorInput {
     content: any
 }
 
-export type Processor = (input: ProcessorInput) => Promise<any>
-export type ProcessorMapping = { [id: string]: Processor }
+export interface Processor {
+    id: string
+    process: ProcessorFunction
+}
+export type ProcessorFunction = (input: ProcessorInput) => Promise<any>
 export type ContextData = { [key: string]: any }
 
 interface ProcessorUsage {
@@ -24,14 +27,14 @@ interface ProcessorUsage {
 export class Context {
     public static create(args: {
         initialDir: string,
-        processors: ProcessorMapping,
+        processors: Processor[],
         data: ContextData
     }) {
         return new Context(args.processors, args.data, [args.initialDir])
     }
 
     private constructor(
-        private processors: ProcessorMapping,
+        private processors: Processor[],
         readonly data: ContextData,
         private dirStack: string[]
     ) {
@@ -46,6 +49,10 @@ export class Context {
             ? this.dirStack[this.dirStack.length - 1]
             : this.dirStack[0]
         return path.join(baseDir, file)
+    }
+
+    findProcessor(id: string) {
+        return this.processors.find(p => p.id === id)
     }
 
     async process(srcFile: string) {
@@ -68,9 +75,9 @@ export class Context {
         const processorDefs = getProcessorDefs(resolvedSrcFile, processorsNode)
         const newContext = this.withDirOnTop(path.dirname(resolvedSrcFileWithExt))
         const tasks = processorDefs.map(processorDef => {
-            const processor = this.processors[processorDef.id]
+            const processor = this.findProcessor(processorDef.id)
             assert(processor, `Couldn't find processor '${processorDef.id}' mentioned in '${resolvedSrcFileWithExt}'`)
-            return (input: any) => processor({
+            return (input: any) => processor.process({
                 context: newContext,
                 srcFile: resolvedSrcFileWithExt,
                 frontMatter: matterResult.matter,
