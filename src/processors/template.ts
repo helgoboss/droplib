@@ -3,8 +3,10 @@ import { Processor } from '..'
 import fs from 'fs-extra'
 
 type Symbols = { [key: string]: any }
+type SymbolsValue = Symbols | Promise<Symbols>
+type SymbolsProvider = SymbolsValue | (() => SymbolsValue)
 
-export function template(symbols: Symbols, options?: { id: string}): Processor {
+export function template(symbols: SymbolsProvider, options?: { id: string }): Processor {
     return {
         id: options?.id || 'template',
         process: async ({ context, srcFile, frontMatter, content }) => {
@@ -13,14 +15,18 @@ export function template(symbols: Symbols, options?: { id: string}): Processor {
                 { filename: srcFile, async: true }
             )
             return await template({
-                ...symbols,
+                ...await resolveSymbols(symbols),
                 context
             })
         }
     }
 }
 
-export function templateFunction(symbols: Symbols, options?: { id: string }): Processor {
+function resolveSymbols(provider: SymbolsProvider): SymbolsValue {
+    return typeof provider === 'function' ? provider() : provider
+}
+
+export function templateFunction(symbols: SymbolsProvider, options?: { id: string }): Processor {
     return {
         id: options?.id || 'template-function',
         process: async ({ context, srcFile, frontMatter, content }) => {
@@ -30,7 +36,7 @@ export function templateFunction(symbols: Symbols, options?: { id: string }): Pr
             )
             return async (args: { [key: string]: any }) => {
                 return await template({
-                    ...symbols,
+                    ...await resolveSymbols(symbols),
                     args,
                     context
                 })
