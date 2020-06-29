@@ -1,6 +1,6 @@
 {
   "name": "@helgoboss/droplib",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Simple Node.js library for building static websites",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -30,6 +30,11 @@
   },
   "homepage": "https://github.com/helgoboss/droplib#readme",
   "devDependencies": {
+    "jest": "^26.1.0",
+    "ts-jest": "^26.1.1",
+    "typescript": "^3.7.3"
+  },
+  "dependencies": {
     "@types/connect": "^3.4.33",
     "@types/ejs": "^3.0.0",
     "@types/finalhandler": "^1.1.0",
@@ -40,11 +45,6 @@
     "@types/mime": "^2.0.1",
     "@types/node": "^12.12.18",
     "@types/serve-static": "^1.13.3",
-    "jest": "^26.1.0",
-    "ts-jest": "^26.1.1",
-    "typescript": "^3.7.3"
-  },
-  "dependencies": {
     "connect": "^3.7.0",
     "ejs": "^3.0.1",
     "finalhandler": "^1.1.2",
