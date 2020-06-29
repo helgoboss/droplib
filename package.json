@@ -1,6 +1,6 @@
 {
   "name": "@helgoboss/droplib",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Simple Node.js library for building static websites",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
