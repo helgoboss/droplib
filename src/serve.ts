@@ -110,11 +110,20 @@ export function createDynamicRoutesMiddleware(
             next()
             return
         }
-        const result = await route.render()
-        response.writeHead(200, {
-            'Content-Type': getContentType(requestedFile)
-        })
-        response.end(result)
+        try {
+            const result = await route.render()
+            
+            response.writeHead(200, {
+                'Content-Type': getContentType(requestedFile)
+            })
+            response.end(result)
+        } catch(e) {
+            response.writeHead(500, {
+                'Content-Type': 'text/plain'
+            })
+            response.end(`Render error:\n\n${e}`)
+            throw e
+        }
     }
 }
 
