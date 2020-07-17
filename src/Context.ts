@@ -106,7 +106,9 @@ async function lookupRealFileForProcessing(file: string) {
 }
 
 function getProcessorDefs(file: string, processorsNode: any): ProcessorUsage[] {
-    assert(processorsNode, `No processors given in '${file}'`)
+    if (processorsNode === undefined) {
+        return []
+    }
     assert(Array.isArray(processorsNode), `Processors must be given as array in '${file}`)
     return processorsNode.map(item => {
         if (typeof item === 'string') {
