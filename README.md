@@ -23,7 +23,7 @@ drop({
     port: 8000,
     getDescriptors: async () => {
         const templateParams = {
-            key1: 'hello'
+            key1: 'hello',
             data: {
                 key2: 'world' 
             }
@@ -77,7 +77,13 @@ Symbols available in template:
 - `args`: Object containing all the arguments which have been passed to the function template
 - Any other symbol provided when constructing the processor
 
-### ...
+### `markdown`
+
+Converts Markdown to HTML.
+
+### `asciidoc`
+
+Converts AsciiDoc to HTML.
 
 ## Todos
 
