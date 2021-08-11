@@ -8,6 +8,9 @@ export function assert(value: unknown, message?: string): asserts value {
 // The given file name can have an extension
 export async function findFileWithArbitraryExtension(file: string) {
     const dirName = path.dirname(file)
+    if (!await fs.pathExists(dirName)) {
+        return undefined
+    }
     const entries = await fs.readdir(dirName)
     const fileName = path.basename(file)
     const matchingEntries = entries.filter(e => e.startsWith(`${fileName}.`))
